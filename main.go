@@ -12,7 +12,7 @@ import (
 	"go.opencensus.io/resource"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
-	"go.opencensus.io/tag"
+	// "go.opencensus.io/tag"
 	"go.opencensus.io/zpages"
 )
 
@@ -40,11 +40,11 @@ func main() {
 				// "location":           "us-central1-a",
 				"cloud.zone": "us-central1-a",
 				// "cluster_name":       "purple",
-				"k8s.cluster.name":   "purple",
-				"service_name":       "helloworld-go",
-				"revision_name":      "helloworld-go-hfc7j",
-				"configuration_name": "helloworld-go",
-				"namespace_name":     "default",
+				"k8s.cluster.name":   "green",
+				"service_name":       "jj-client",
+				"revision_name":      "jj-client-revision",
+				"configuration_name": "jj-client-configuration",
+				"namespace_name":     "test-client",
 			},
 		}, nil
 	}))
@@ -60,26 +60,25 @@ func main() {
 
 	// Some stats
 	mPodCounts := stats.Int64("actual_pods", "The total number of knative pods", stats.UnitDimensionless)
-	mRequestCount := stats.Int64("request_count", "The total number of requests to revistions", stats.UnitDimensionless)
+	// mRequestCount := stats.Int64("request_count", "The total number of requests to revistions", stats.UnitDimensionless)
 
-	myKey := tag.MustNewKey("foo")
-	respnseCodeClassKey := tag.MustNewKey("response_code_class")
-	respnseCodeKey := tag.MustNewKey("response_code")
+	// myKey := tag.MustNewKey("foo")
+	// respnseCodeClassKey := tag.MustNewKey("response_code_class")
+	// respnseCodeKey := tag.MustNewKey("response_code")
 	views := []*view.View{
 		{
 			Description: "The total number of knative pods",
 			Name:        "autoscaler/actual_pods",
 			Measure:     mPodCounts,
 			Aggregation: view.LastValue(),
-			TagKeys:     []tag.Key{myKey},
 		},
-		{
-			Description: "The total number of requests to revisions",
-			Name:        "revision/request_count",
-			Measure:     mRequestCount,
-			Aggregation: view.Sum(),
-			TagKeys:     []tag.Key{myKey, respnseCodeClassKey, respnseCodeKey},
-		},
+		/* { */
+		// Description: "The total number of requests to revisions",
+		// Name:        "internal/serving/revision/request_count",
+		// Measure:     mRequestCount,
+		// Aggregation: view.Sum(),
+		// TagKeys:     []tag.Key{respnseCodeClassKey, respnseCodeKey},
+		/* }, */
 	}
 
 	if err := view.Register(views...); err != nil {
@@ -87,17 +86,11 @@ func main() {
 	}
 
 	podCountsCtx := context.Background()
-	podCountsCtx, _ = tag.New(podCountsCtx, tag.Insert(myKey, "bar"))
-	responseCodeCtx := context.Background()
-	responseCodeCtx, _ = tag.New(responseCodeCtx, tag.Insert(respnseCodeClassKey, "4xx"))
-	responseCodeCtx, _ = tag.New(responseCodeCtx, tag.Insert(respnseCodeKey, "400"))
-	responseCodeCtx, _ = tag.New(responseCodeCtx, tag.Insert(myKey, "bar"))
+	// podCountsCtx, _ = tag.New(podCountsCtx, tag.Insert(myKey, "bar"))
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for {
 		time.Sleep(5000 * time.Millisecond)
 		randPodCounts := rng.Int63n(999)
-		randRequestCount := rng.Int63n(100)
 		stats.Record(podCountsCtx, mPodCounts.M(randPodCounts))
-		stats.Record(responseCodeCtx, mRequestCount.M(randRequestCount))
 	}
 }

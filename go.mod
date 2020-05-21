@@ -8,4 +8,4 @@ require (
 	go.opencensus.io v0.22.3
 )
 
-replace contrib.go.opencensus.io/exporter/ocagent => /usr/local/google/home/jjzeng/gohack/contrib.go.opencensus.io/exporter/ocagent
+replace contrib.go.opencensus.io/exporter/ocagent => ./ocagent
