@@ -68,7 +68,7 @@ func main() {
 	views := []*view.View{
 		{
 			Description: "The total number of knative pods",
-			Name:        "autoscaler/actual_pods",
+			Name:        "knative.dev/serving/autoscaler/actual_pods",
 			Measure:     mPodCounts,
 			Aggregation: view.LastValue(),
 		},
